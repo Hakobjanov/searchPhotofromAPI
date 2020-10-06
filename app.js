@@ -3,10 +3,14 @@ const gallery = document.querySelector(".gallery");
 const searchInput = document.querySelector(".search-input");
 const form = document.querySelector(".search-form");
 const more = document.querySelector(".more");
+const toTheTopBtn = document.querySelector(".up");
 let searchValue;
 let page = 1;
 let fetchLink;
 let currentSearch;
+
+//up button
+toTheTopBtn.addEventListener("click", () => scrollTo(0, 0));
 
 //event listener
 searchInput.addEventListener("input", updateInput);
@@ -19,7 +23,6 @@ form.addEventListener("submit", (e) => {
 more.addEventListener("click", loadMore);
 
 function updateInput(e) {
-  console.log(e.target.value);
   searchValue = e.target.value;
 }
 
@@ -60,7 +63,15 @@ async function searchPhotos(search) {
   clear();
   fetchLink = `https://api.pexels.com/v1/search?query=${search}+query&per_page=15&page=1`;
   const data = await fetchAPI(fetchLink);
-  generatePictures(data);
+  console.log(data);
+  if (data.total_results) {
+    generatePictures(data);
+  } else {
+    const noResult = document.createElement("h3");
+    noResult.classList.add("no-result");
+    noResult.innerText = "No Photos";
+    gallery.appendChild(noResult);
+  }
 }
 
 function clear() {
@@ -69,6 +80,8 @@ function clear() {
 }
 
 async function loadMore() {
+  this.blur();
+
   page++;
   if (currentSearch) {
     fetchLink = `https://api.pexels.com/v1/search?query=${currentSearch}+query&per_page=15&page=${page}`;
